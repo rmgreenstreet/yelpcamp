@@ -19,7 +19,18 @@ const commentRoutes = require("./routes/comments.js"),
 	  indexRoutes = require("./routes/index.js");
 
 //app config
-mongoose.connect("mongodb://localhost:27017/yelp_camp",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
+// mongoose.connect("mongodb://localhost:27017/yelp_camp",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
+// mongoose.connect("mongodb+srv://robertgreenstreet:mare5Eat0at%24@yelpcamp-wvcjs.mongodb.net/test?retryWrites=true&w=majority",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
+
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://robertgreenstreet:mare5Eat0at%24@yelpcamp-wvcjs.mongodb.net/test?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:true,useFindAndModify: false, useCreateIndex:true });
+client.connect(err => {
+  const collection = client.db("test").collection("devices");
+  // perform actions on the collection object
+  client.close();
+});
+
 
 app.set('view engine','ejs');
 
@@ -72,6 +83,6 @@ let port = process.env.PORT;
 if (port == null || port == "") {
   port = 8080;
 }
-app.listen(port, process.env.IP, function () {
-	console.log("server has started");
+app.listen(port, () => {
+	console.log("server has started, listening on port 8080");
 });

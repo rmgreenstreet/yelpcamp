@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-	"start": "node app.js"
+    "start": "node app.js"
   },
   "author": "Robert Greenstreet",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "express-sanitizer": "^1.0.5",
     "express-session": "^1.17.0",
     "method-override": "^3.0.0",
+    "mongodb": "^3.4.0",
     "mongoose": "^5.7.13",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
