@@ -13,11 +13,11 @@ one:one, one:many, many:many
 	- One book related to one author (but not necessarily the other way around)
 	- One address related to one house
 	- one SSN related to one person
-one:many: one entity is related to multiple other entities
+- one:many: one entity is related to multiple other entities
 	- One user can have many photos, posts, comments, etc
 	- One author can write many books
 	- One child has two(technically many) parents
-many:many: association goes both ways
+- many:many: association goes both ways
 	- students and courses
 		students have multiple courses, and each course has multiple students
 	- authors and books
