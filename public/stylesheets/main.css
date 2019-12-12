@@ -1,0 +1,10 @@
+.camp-thumbnail {
+	width: 18rem;
+}
+
+footer {
+	position:fixed;
+	z-index:0;
+	bottom:0;
+	left:0;
+}
