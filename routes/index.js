@@ -57,9 +57,4 @@ router.get('/logout',(req,res)=>{
 	res.redirect('/campgrounds');
 });
 
-
-app.get("*",(req,res) => {
-     res.send("This page does not exist. Please go back and try again.")
-     });
-
 module.exports = router;

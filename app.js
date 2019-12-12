@@ -83,6 +83,9 @@ app.use(indexRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
 app.use("/campgrounds", campgroundRoutes);
 
+app.get("*",(req,res) => {
+     res.send("This page does not exist. Please go back and try again.")
+     });
 
 // app.listen(8080, process.env.IP, function() {
 //     console.log("server has started");
