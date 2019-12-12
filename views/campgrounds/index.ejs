@@ -19,17 +19,19 @@
 			</h3>
 		</div>
 	</div>
-	<div class="row">
+	<div class="card-columns">
 		<% campgrounds.forEach(function(campground){ %>
-			<div class="campground col-12 col-sm-6 col-md-3 text-center">
+			<!-- <div class="campground col-12 col-sm-6 col-md-3 text-center"> -->
 				<div class="card">
-					<img src="<%= campground["image"] %>" width="200px" class="card-img-top">
-					<h4 class="card-title"><%= campground["name"] %></h4>
-					<p>
-						<a href="/campgrounds/<%= campground["_id"] %>" class="btn btn-primary">More Info</a>
-					</p>
+					<img src="<%= campground["image"] %>" width="200px" class="card-img-top img-fluid">
+					<div class="card-block text-center">
+						<h4 class="card-title"><%= campground["name"] %></h4>
+						<p>
+							<a href="/campgrounds/<%= campground["_id"] %>" class="btn btn-primary">More Info</a>
+						</p>
+					</div>
 				</div>
-			</div>
+			<!-- </div> -->
 		<% }); %>
 	</div>
 </div>

@@ -2,9 +2,24 @@
 	width: 18rem;
 }
 
-footer {
+/* footer {
 	position:fixed;
 	z-index:0;
 	bottom:0;
 	left:0;
+} */
+
+.card-columns {
+  @include media-breakpoint-only(lg) {
+    column-count: 4;
+  }
+  @include media-breakpoint-only(xl) {
+    column-count: 5;
+  }
+	@include media-breakpoint-only(sm) {
+    column-count: 2;
+  }
+	@include media-breakpoint-only(sm) {
+    column-count: 1;
+  }
 }
