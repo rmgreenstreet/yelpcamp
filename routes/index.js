@@ -7,7 +7,8 @@ const express 		= require('express'),
 	   User 		= require("../models/user.js");
 
 //root route
-router.get("/",(req,res) => {
+router.get("/", (req,res) => {
+	
 	res.render('home.ejs');
 });
 
@@ -55,5 +56,10 @@ router.get('/logout',(req,res)=>{
 	req.flash("success","You have been logged out");
 	res.redirect('/campgrounds');
 });
+
+
+app.get("*",(req,res) => {
+     res.send("This page does not exist. Please go back and try again.")
+     });
 
 module.exports = router;
