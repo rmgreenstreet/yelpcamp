@@ -1,5 +1,6 @@
 const 	express 				= require("express"),
 		app 					= express(),
+	  	dotEnv					= require('dotenv').config(),
 		LocalStrategy			= require('passport-local'),
 	  	bodyParser 				= require('body-parser'),
 		mongoose 				= require('mongoose'),
@@ -22,14 +23,27 @@ const commentRoutes = require("./routes/comments.js"),
 // mongoose.connect("mongodb://localhost:27017/yelp_camp",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
 // mongoose.connect("mongodb+srv://robertgreenstreet:mare5Eat0at%24@yelpcamp-wvcjs.mongodb.net/test?retryWrites=true&w=majority",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
 
+// const dbpass = dotEnv.env.DB_PASS;
 const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://robertgreenstreet:mare5Eat0at%24@yelpcamp-wvcjs.mongodb.net/test?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:true,useFindAndModify: false, useCreateIndex:true });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
+const uri = "mongodb+srv://robertgreenstreet:mare5Eatoat%24@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority";
+mongoose.connect(uri,{
+	useNewUrlParser:true, 
+	useUnifiedTopology:true,
+	useFindAndModify: false
+}).then(() => {
+	console.log('Connected to Mongoose DB')
+}).catch(err => {
+	console.log('error: ',err.message)
 });
+
+
+
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:true,useFindAndModify: false, useCreateIndex:true });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   client.close();
+// });
 
 
 app.set('view engine','ejs');
