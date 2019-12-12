@@ -64,6 +64,14 @@ app.get("*",(req,res) => {
      });
 
 
-app.listen(8080, process.env.IP, function() {
-    console.log("server has started");
+// app.listen(8080, process.env.IP, function() {
+//     console.log("server has started");
+// });
+
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8080;
+}
+app.listen(port, process.env.IP, function () {
+	console.log("server has started");
 });
