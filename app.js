@@ -1,6 +1,7 @@
+
+require('dotenv').config();
 const 	express 				= require("express"),
 		app 					= express(),
-	  	dotEnv					= require('dotenv').config(),
 		LocalStrategy			= require('passport-local'),
 	  	bodyParser 				= require('body-parser'),
 		mongoose 				= require('mongoose'),
