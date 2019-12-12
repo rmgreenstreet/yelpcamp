@@ -21,12 +21,10 @@ const commentRoutes = require("./routes/comments.js"),
 
 //app config
 // mongoose.connect("mongodb://localhost:27017/yelp_camp",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
-// mongoose.connect("mongodb+srv://robertgreenstreet:mare5Eat0at%24@yelpcamp-wvcjs.mongodb.net/test?retryWrites=true&w=majority",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
 
 // const dbpass = dotEnv.env.DB_PASS;
-const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://robertgreenstreet:mare5Eatoat%24@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority";
-mongoose.connect(uri,{
+// const uri = "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority";
+mongoose.connect(process.env.DATABASEURL,{
 	useNewUrlParser:true, 
 	useUnifiedTopology:true,
 	useFindAndModify: false
@@ -36,7 +34,7 @@ mongoose.connect(uri,{
 	console.log('error: ',err.message)
 });
 
-
+console.log("Environment database URL: "+process.env.DATABASEURL);
 
 // const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:true,useFindAndModify: false, useCreateIndex:true });
 // client.connect(err => {
@@ -96,5 +94,5 @@ if (port == null || port == "") {
   port = 8080;
 }
 app.listen(port, () => {
-	console.log("server has started, listening on port 8080");
+	console.log("server has started, listening on port "+port);
 });
