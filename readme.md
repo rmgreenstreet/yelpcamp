@@ -9,3 +9,5 @@ COURSE PROJECT FOR WEB DEVELOPER BOOTCAMP WITH COLT STEELE - BY ROBERT GREENSTRE
 - Uses Twitter Bootstrap for styling
 	- https://getboostrap.com
 - See package.json for other dependencies
+
+GitHub: https://github.com/rmgreenstreet/yelpcamp
