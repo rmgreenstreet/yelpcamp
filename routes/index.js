@@ -15,7 +15,7 @@ router.get("/", (req,res) => {
 
 //register form route
 router.get('/register',(req,res)=>{
-	res.render('register.ejs');
+	res.render('register.ejs', {page:'register'});
 });
 
 //signup logic
@@ -38,7 +38,7 @@ router.post('/register',(req,res)=>{
 
 //show login page
 router.get('/login',(req,res)=>{
-	res.render('login.ejs');
+	res.render('login.ejs',{page:'login'});
 });
 
 //login logic
