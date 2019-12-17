@@ -1,9 +1,9 @@
 <%- include("../partials/header.ejs") %>
 
 <div class="container">
-	<h1 class="display-4 text-center">Edit Comment</h1>
-		<div class="row">
-		<div id="" style="width:30%; margin: 25px auto;">
+	<div class="row">
+		<div id="" class="col-11 col-md-6 mx-auto">	
+			<h1 class="display-4 text-center">Edit Comment</h1>
 			<form action="/campgrounds/<%= campground_id %>/comments/<%= foundComment.id %>?_method=put" method="post">
 				<div class="form-group">
 					<input class="form-control" type="text" name="updatedComment[text]" value="<%= foundComment.text %>" required="true" autofocus="autofocus">
