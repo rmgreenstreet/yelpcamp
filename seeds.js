@@ -3,14 +3,17 @@ const mongoose 		= require("mongoose"),
 	  Comment   	= require("./models/comment.js"),
 	  seeds = [
     {
-        name: "Cloud's Rest", 
+        name: "Turkey Point", 
         image: "https://farm4.staticflickr.com/3795/10131087094_c1c0a1c859.jpg",
         description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
 		author: {
 			id:"5deff8bd60ff5c04a8727abc",
 			username:"Joe Schmoe"
 		},
-		price:12
+		price:12,
+		location:"30967 Turkey Point Prkwy, Osage City, KS 66523",
+		lat:38.551001,
+		lng:-95.859732,
     },
     {
         name: "Desert Mesa", 
@@ -20,7 +23,10 @@ const mongoose 		= require("mongoose"),
 			id:"5deff8bd60ff5c04a8727abc",
 			username:"Joe Schmoe"
 		},
-		price:15
+		price:15,
+		location:"Cliff Palace Loop, Mesa Verde National Park, CO 81330",
+		lat:37.169037,
+		lng:-108.470609,
     },
     {
         name: "Canyon Floor", 
@@ -30,7 +36,10 @@ const mongoose 		= require("mongoose"),
 			id:"5deff8bd60ff5c04a8727abc",
 			username:"Joe Schmoe"
 		},
-		price:30
+		price:30,
+		location:"40 S Kaibab Trail, Grand Canyon Village, AZ 86023",
+		lat:36.091558,
+		lng:-112.086602,
     }
 ];
  
@@ -47,10 +56,7 @@ async function seedDB(){
 			{
 				text: "This place is great, but I wish there was internet",
 				author: {
-						// id: {
-						// 	type: mongoose.Schema.Types.ObjectID,
-						// 	ref:"User"
-						// },
+						id: "5deff8bd60ff5c04a8727abc",
 						username:"Homer"
 					}
 			});

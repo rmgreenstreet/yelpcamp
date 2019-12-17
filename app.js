@@ -25,6 +25,7 @@ const commentRoutes = require("./routes/comments.js"),
 
 // const dbpass = dotEnv.env.DB_PASS;
 // const uri = "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority";
+
 mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority",{
 	useNewUrlParser:true, 
 	useUnifiedTopology:true,

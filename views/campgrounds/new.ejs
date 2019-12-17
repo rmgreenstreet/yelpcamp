@@ -4,19 +4,27 @@
 		Create a new Campground
 		</h1>
 	<div class="row">
-		<div id="" style="width:30%; margin: 25px auto;">
+		<div id="" class="col col-md-6 mx-auto">
 			<form action="/campgrounds" method="post">
 				<div class="form-group">
+					<label for="name">Campground Name</label>
 					<input class="form-control" type="text" name="name" placeholder="Campground Name" required="true" autofocus="autofocus">
 				</div>
 				<div class="form-group">
+					<label for="image">Campground Image URL</label>
 					<input class="form-control"  type="text" name="image" placeholder="Image URL" required="true">
 				</div>
 				<div class="form-group">
+					<label for="description">Campground Description</label>
 					<input class="form-control"  type="textarea" name="description" placeholder="Description" required="true">
 				</div>
 				<div class="form-group">
-					<input class="form-control"  type="textarea" name="price" placeholder="Price per night" required="true">
+					<label for="price">Price Per Night (USD)</label>
+					<span class="">$<input class="form-control"  type="number" step="0.01" name="price" placeholder="Price per night" required="true"></span>
+				</div>
+				<div class="form-group">
+					<label for="location">Location</label>
+    					<input class="form-control" type="text" name="location" id="location" placeholder="Yosemite National Park, CA">
 				</div>
 				<div class="form-group">
 					<button class="btn btn-lg btn-primary btn-block">

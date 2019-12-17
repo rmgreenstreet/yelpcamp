@@ -106,3 +106,8 @@ body {
 .no-cssanimations .slideshow li {
 	opacity: 1;
 }
+
+#map {
+    height: 400px;
+    width: 100%;
+}
