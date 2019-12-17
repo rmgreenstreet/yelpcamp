@@ -1,0 +1,40 @@
+<%- include("../partials/header") %>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3 mt-3">
+				<a href="/campgrounds" class="btn btn-info mb-2">&lt; Back to Campgrounds</a>
+				<div class="list-group">
+					<li class="list-group-item"><img src="<%= user.image %>" alt="<%= user.username %>'s Picture"></li>
+					<li class="list-group-item">Info 2</li>
+					<li class="list-group-item active">Info 3</li>
+				</div>
+			</div>
+			<div class="col-md-9 mt-3">
+				<div class="card">
+					<div class="card-body">
+						<h4 class="card-title">
+							<%= user.username %>
+						</h4>
+						<p class="card-subtitle">
+							<%= user.username %>'s Submitted Campgrounds
+						</p>
+						<div id="submittedCampgrounds" class="card-text">
+
+						</div>
+					</div>
+						<% if((currentUser && currentUser.id.equals(req.params.id)) || (currentUser && currentUser.isAdmin)){ %>
+						<div class="changebuttons">
+							<a class="btn btn-warning" href="/profile/<%= user.id %>/edit">Edit Profile</a>
+						<form action="/profile/<%= user.id %>/?_method=delete" method="post" class="pull-right">
+							<button class="btn btn-danger">
+								Delete Account
+							</button>
+						</form>
+						</div>
+						<% } %>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<%- include("../partials/footer") %>
