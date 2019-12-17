@@ -30,12 +30,12 @@
 						
 						<a href="#"><h4 class="display-5"><%= foundCampground.name %></h4></a>
 						<p class="">
-							Submitted by <%= foundCampground['author']['username'] %>
+							Submitted by <a href="/profile/<%= foundCampground['author']['id'] %>"><%= foundCampground['author']['username'] %></a>, <em><%= moment(foundCampground.created).fromNow() %></em>
 						</p>
 						<p class="">
 						<%= foundCampground["description"] %>
 						</p>
-						<% if(currentUser && foundCampground.author.id.equals(currentUser._id)) { %>
+						<% if((currentUser && foundCampground.author.id.equals(currentUser._id)) || (currentUser && currentUser.isAdmin)) { %>
 						<div class="changebuttons">
 							<a class="btn btn-warning" href="/campgrounds/<%= foundCampground.id %>/edit">Edit</a>
 						<form action="/campgrounds/<%= foundCampground.id %>/?_method=delete" method="post" class="pull-right">
@@ -59,13 +59,13 @@
 						<% foundCampground.comments.forEach((comment) => { %>
 							<div class="row">
 								<div class="col-md-12">
-									<strong><%= comment.author.username %></strong>
-									<span class="pull-right">10 days ago</span>
+									<strong><a href="/profile/<%= foundCampground['author']['id'] %>"><%= comment.author.username %></a></strong>
+									<span class="pull-right"><em><%= moment(comment.created).fromNow() %></em></span>
 									<p class="caption">
 										<%= comment.text %>
 									</p>
 									
-									<% if(currentUser && comment.author.id.equals(currentUser._id)) { %>
+									<% if((currentUser && foundCampground.author.id.equals(currentUser._id)) || (currentUser && currentUser.isAdmin)) { %>
 									<div class="changebuttons">
 										<a href="/campgrounds/<%= foundCampground._id %>/comments/<%= comment._id %>/edit" class="btn btn-xs btn-warning">Edit</a>
 									<form action="/campgrounds/<%= foundCampground.id %>/comments/<%= comment._id %>?_method=delete" method="post" class="pull-right">

@@ -51,7 +51,7 @@ router.post("/", middleware.isLoggedIn, function(req, res){
       username: req.user.username
   };
 	var price = req.body.price;
-  geocoder.geocode(req.body.location, function (err, data) {
+  geocoder.geocode(req.body.location, (err, data) => {
     if (err || !data.length) {
       req.flash('error', err.message);
       return res.redirect('back');
@@ -59,6 +59,9 @@ router.post("/", middleware.isLoggedIn, function(req, res){
     var lat = data[0].latitude;
     var lng = data[0].longitude;
     var location = data[0].formattedAddress;
+	  
+	// var place_id = data[0].place_id;
+	  
     var newCampground = {name: name, image: image, description: desc, author:author, price:price, location: location, lat: lat, lng: lng};
     // Create a new campground and save to DB
     Campground.create(newCampground, function(err, newlyCreated){
@@ -110,6 +113,8 @@ router.put('/:id',middleware.checkCampgroundOwnership,(req,res) => {
 		req.body.campground.lat = data[0].latitude;
 		req.body.campground.lng = data[0].longitude;
 		req.body.campground.location = data[0].formattedAddress;
+		
+		// req.body.campground.place_id = data[0].place_id;
 		
 		Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err,updatedCampground) => {
 			if(err) {
