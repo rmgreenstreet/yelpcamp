@@ -2,37 +2,84 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-3 mt-3">
-				<a href="/campgrounds" class="btn btn-info mb-2">&lt; Back to Campgrounds</a>
 				<div class="list-group">
-					<li class="list-group-item"><img src="<%= user.image %>" alt="<%= user.username %>'s Picture"></li>
-					<li class="list-group-item">Info 2</li>
-					<li class="list-group-item active">Info 3</li>
+					<li class="list-group-item">
+						<% if(user.image && user.image!="") { %>
+							<img src="<%= user.image %>" alt="<%= user.username %>'s Picture" class="img img-fluid">
+						<% } else { %>
+							<img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="img img-fluid">
+						<% } %>
+					</li>
+					<li class="list-group-item">
+						<% if((currentUser && user._id.equals(currentUser.id)) || (currentUser && currentUser.isAdmin)){ %>
+						<div class="changebuttons row">
+							<a class="btn btn-warning btn-block mb-1" href="/profile/<%= user.id %>/edit">Edit Profile</a>
+							<a class="btn btn-info btn-block mb-1" href="/profile/<%= user.id %>/reset">Reset Password</a>
+							<a class="btn btn-danger btn-block mb-1" href="" id="deletebutton" data-toggle="modal" data-target="#confirmDelete">Delete Account</a>
+							<!-- Modal -->
+							<div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog" aria-labelledby="confirmDelete" aria-hidden="true">
+							  <div class="modal-dialog" role="document">
+								<div class="modal-content">
+								  <div class="modal-header">
+									<h5 class="modal-title" id="confirmDeleteTitle">Delete Account?</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									  <span aria-hidden="true">&times;</span>
+									</button>
+								  </div>
+								  <div class="modal-body">
+									Are you sure you want to delete your account? <strong>This is PERMANENT and cannot be undone.</strong> All of your submitted Campgrounds and Comments will remain on the site.
+								  </div>
+								  <div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Nevermind</button>
+									  <form action="/profile/<%= user.id %>/?_method=delete" method="post" class="mt-1">
+									<button class="btn btn-danger">
+										Delete Account
+									</button>
+								</form>
+								  </div>
+								</div>
+							  </div>
+							</div>
+						</div>
+						<% } %>
+					</li>
+					<li class="list-group-item"><a href="/campgrounds" class="">Back to Campgrounds</a></li>
 				</div>
 			</div>
 			<div class="col-md-9 mt-3">
 				<div class="card">
 					<div class="card-body">
 						<h4 class="card-title">
-							<%= user.username %>
+							Say hi to <%= user.username %>!
 						</h4>
-						<p class="card-subtitle">
-							<%= user.username %>'s Submitted Campgrounds
-						</p>
 						<div id="submittedCampgrounds" class="card-text">
-
+							<% if(foundCampgrounds && foundCampgrounds != "") { %>
+								<p class="card-subtitle">
+									<%= user.username %>'s Submitted Campgrounds:
+								</p>
+								<% foundCampgrounds.forEach(campground => { %>
+									<div class="card my-2">
+										<div class="row">
+											<img class="img card-img col-md-4 mx-auto" src="<%= campground.image %>" style="height:150px;width:150px;object-fit:cover;">
+											<div class="card-body col-md-8">
+												<h3 class="card-title">
+													<a href="/campgrounds/<%= campground.id %>"><%= campground.name %></a>
+												</h3>
+												<p class="card-text">
+													<%= campground.description.substring(0, 75) %>... <a href="/campgrounds/<%= campground.id %>">Read More</a>
+												</p>
+											</div>
+										</div>
+									</div>
+								<% }); %>
+							<% } else { %>
+								<p>
+									This user has not submitted any campgrounds
+								</p>
+							<% } %>
 						</div>
 					</div>
-						<% if((currentUser && currentUser.id.equals(req.params.id)) || (currentUser && currentUser.isAdmin)){ %>
-						<div class="changebuttons">
-							<a class="btn btn-warning" href="/profile/<%= user.id %>/edit">Edit Profile</a>
-						<form action="/profile/<%= user.id %>/?_method=delete" method="post" class="pull-right">
-							<button class="btn btn-danger">
-								Delete Account
-							</button>
-						</form>
-						</div>
-						<% } %>
-					</div>
+						
 				</div>
 			</div>
 		</div>

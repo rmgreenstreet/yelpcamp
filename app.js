@@ -18,13 +18,11 @@ const 	express 				= require("express"),
 
 const commentRoutes = require("./routes/comments.js"),
 	  campgroundRoutes = require("./routes/campgrounds.js"),
-	  indexRoutes = require("./routes/index.js");
+	  indexRoutes = require("./routes/index.js"),
+	  userRoutes = require('./routes/user.js');
 
 //app config
-// mongoose.connect("mongodb://localhost:27017/yelp_camp",{useNewUrlParser:true, useUnifiedTopology:true,useFindAndModify: false});
 
-// const dbpass = dotEnv.env.DB_PASS;
-// const uri = "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority";
 
 mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority",{
 	useNewUrlParser:true, 
@@ -37,14 +35,6 @@ mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+p
 });
 
 console.log("Environment database URL: "+process.env.DATABASEURL);
-
-// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:true,useFindAndModify: false, useCreateIndex:true });
-// client.connect(err => {
-//   const collection = client.db("test").collection("devices");
-//   // perform actions on the collection object
-//   client.close();
-// });
-
 
 app.set('view engine','ejs');
 
@@ -84,14 +74,11 @@ app.use(function(req, res, next){
 app.use(indexRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
 app.use("/campgrounds", campgroundRoutes);
+app.use(userRoutes);
 
 app.get("*",(req,res) => {
      res.send("This page does not exist. Please go back and try again.")
      });
-
-// app.listen(8080, process.env.IP, function() {
-//     console.log("server has started");
-// });
 
 let port = process.env.PORT;
 if (port == null || port == "") {

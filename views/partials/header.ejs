@@ -26,12 +26,12 @@
 		  </button>
 		  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 			<div class="navbar-nav">
-			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'campgrounds' ? 'active' : '' %>" href="/">Campgrounds<span class="sr-only">(current)</span></a>
+			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'campgrounds' ? 'active' : '' %>" href="/campgrounds">Campgrounds<span class="sr-only">(current)</span></a>
 				<% if(!currentUser){ %>
 			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'login' ? 'active' : '' %>" href="/login" id="login_button">Log In</a>
 			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'register' ? 'active' : '' %>" href="/register" id="signup_button">Sign Up</a>
 				<% } else { %>
-				<a class="nav-item nav-link" href="#">Signed In As <%= currentUser.username %></a>
+				<a class="nav-item nav-link" href="/profile/<%= currentUser._id %>">Signed In As <%= currentUser.username %></a>
 				<a class="nav-item nav-link" href="/logout" id="signup_button">Log Out</a>
 				<% }; %>
 			</div>
