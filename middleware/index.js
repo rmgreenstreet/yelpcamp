@@ -1,5 +1,6 @@
 const Campground = require("../models/campground.js"),
-	  Comment = require("../models/comment.js");
+	  Comment = require("../models/comment.js"),
+	  User = require('../models/user.js');
 
 let middlewareObj = {};
 //middleware
@@ -55,19 +56,19 @@ middlewareObj.checkCommentOwnership = function (req,res,next) {
 	}
 	else {
 		req.flash('error','You must be logged in to do that');
-		res.redirect('back');
+		res.redirect('/login');
 	}
 }
 
 middlewareObj.checkProfileOwnership = function (req,res,next) {
 	if(req.isAuthenticated()) {
-		User.findByID(req.user.id, (err,foundUser) =>{
+		User.findById(req.user.id, (err,foundUser) =>{
 			if(err) {
 				req.flash('error',err.message);
 				res.redirect('back');
 			}
 			else {
-				if((foundUser.id.equals(req.user._id)) || (req.user.isAdmin)){
+				if((foundUser._id.equals(req.user._id)) || (req.user.isAdmin)){
 					next();
 				}
 				else{
@@ -75,7 +76,7 @@ middlewareObj.checkProfileOwnership = function (req,res,next) {
 					res.redirect('back');
 				}
 			}
-		})
+		});
 	}
 	else {
 		req.flash('error','You must be logged in to do that');
