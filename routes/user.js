@@ -8,7 +8,6 @@ const express = require('express'),
 	  methodOverride = require('method-override'),
 	  async = require('async'),
 	  nodemailer = require('nodemailer'),
-	  crypto = require('crypto'),
 	  ejs = require('ejs');
 
 
