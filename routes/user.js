@@ -5,7 +5,11 @@ const express = require('express'),
 	  passport= require("passport"),
 	  User = require("../models/user.js"),
 	  middleware = require('../middleware'),
-	  methodOverride = require('method-override');
+	  methodOverride = require('method-override'),
+	  async = require('async'),
+	  nodemailer = require('nodemailer'),
+	  crypto = require('crypto'),
+	  ejs = require('ejs');
 
 
 
@@ -21,7 +25,7 @@ router.get('/register/admin',(req,res)=>{
 
 //signup logic
 router.post('/register',(req,res)=>{
-	var newUser = new User({username:req.body.username,image:req.body.image});
+	var newUser = new User({username:req.body.username,image:req.body.image,email:req.body.email});
 	User.register(newUser,req.body.password,(err,user)=>{
 		if(err){
 			req.flash('error',err.message);
@@ -137,10 +141,161 @@ router.delete('/profile/:id',middleware.checkProfileOwnership,(req,res) => {
 });
 
 //logout route
-router.get('/logout',(req,res)=>{
+router.get('/logout',middleware.isLoggedIn,(req,res)=>{
 	req.logout();
 	req.flash("success","You have been logged out");
 	res.redirect('/campgrounds');
+});
+
+//forgot route
+router.get('/forgot',(req,res) => {
+	res.render('../views/user/forgot.ejs');
+});
+
+//send reset email
+router.post('/forgot',(req,res) => {
+	async.waterfall([
+		function(done) {
+			crypto.randomBytes(20,(err,buf) => {
+				var token = buf.toString('hex');
+				done(err,token);
+			});
+		},
+		function(token,done) {
+			User.findOne({username:req.body.username},(err,foundUser) =>{
+				if(err) {
+					req.flash('error','No user with that username exists');
+					res.redirect('back');
+				}
+				else {
+					foundUser.resetPasswordToken = token;
+					foundUser.resetPasswordExpires = Date.now() + 1800000 //30 minutes
+
+					foundUser.save((err) => {
+						done(err,token,foundUser);
+					});
+				}
+			});
+		},
+		function(token,foundUser,done) {
+			ejs.renderFile("./private/reset.ejs", { foundUser:foundUser,address:req.headers.host, token:token }, (err, data) => {
+				if(err){
+					console.log(err);
+				}
+				else {
+					let smtpTransport = nodemailer.createTransport({
+						service:'Gmail',
+						auth:{
+							user:'rgreenstreetdev@gmail.com',
+							pass:process.env.GMAILPW
+						}
+					});
+					let mailOptions = {
+						to:foundUser.email,
+						from:'rgreenstreetdev@gmail.com',
+						subject:'YelpCamp Password Reset',
+						// text:'You are receiving this email because you (or someone else) have requested to reset the password for '+foundUser.username+' on YelpCamp.' +
+						// 	'Please click the following link, or paste it into your address bar, to set a new password for this account:' +
+						// 	'http://'+req.headers.host+'/reset/'+token+'\n\n' *
+						// 	'If you did not request to reset your password, please ignore this email and your password will remain the same.'
+						html:data
+					};
+					smtpTransport.sendMail(mailOptions,(err) => {
+						console.log('password reset email sent');
+						req.flash('success','A password reset link has been sent to the email address associated with your account');
+						done(err,'done');
+					});
+				}
+			});
+		}
+	],
+		function(err) {
+		if (err) return next(err);
+		res.redirect('/forgot');
+		}
+	);
+});
+
+//reset route
+router.get('/reset/:token',(req,res) => {
+	User.findOne({resetPasswordToken:req.params.token, resetPasswordExpires: {$gt: Date.now()}}, (err,foundUser) => {
+		if(err){
+			req.flash('error',err.message)
+			res.redirect('back');
+		}
+		else if(!foundUser) {
+			req.flash('The password reset token is invalid or expired. Please send another reset link');
+			res.redirect('/forgot');
+		}
+		else {
+		res.render('../views/user/reset.ejs',{foundUser:foundUser,token:req.params.token});
+		}
+	})
+});
+
+//save new password
+router.post('/reset/:token',(req,res) => {
+	async.waterfall([
+		function(done) {
+			User.findOne({resetPasswordToken:req.params.token, resetPasswordExpires:{$gt: Date.now()}}, (err,foundUser) => {
+				if(err) {
+					req.flash('error',err.message);
+					res.redirect('back');
+				}
+				else if (req.body.newPassword === req.body.confirmNewPassword) {
+					foundUser.setPassword(req.body.newPassword, (err) => {
+						if(err){
+							console.log(err);
+						}
+						else {
+							foundUser.resetPasswordToken= undefined;
+							foundUser.resetPasswordExpires = undefined;
+							foundUser.save(function(err) {
+							  req.logIn(foundUser, function(err) {
+								done(err,foundUser);
+							  });
+							});
+						}
+					});	
+				}
+				else {
+					req.flash('error','Passwords do not match');
+					res.redirect('back');
+				}
+			});
+		},
+		function(foundUser,done) {
+			ejs.renderFile("./private/resetSuccess.ejs", { foundUser:foundUser,address:req.headers.host}, (err, data) => {
+				if(err){
+					console.log(err);
+				}
+				else {
+					let smtpTransport = nodemailer.createTransport({
+						service:'Gmail',
+						auth:{
+							user:'rgreenstreetdev@gmail.com',
+							pass:process.env.GMAILPW
+						}
+					});
+					let mailOptions = {
+						to:foundUser.email,
+						from:'rgreenstreetdev@gmail.com',
+						subject:'YelpCamp Password Reset Successful',
+						html:data
+					};
+					smtpTransport.sendMail(mailOptions,(err) => {
+						console.log('Successful reset email sent');
+						req.flash('success','Your password has been reset successfully');
+						res.redirect('/campgrounds');
+						done(err);
+					});
+				}
+			});
+		}
+	], function(err) {
+		req.flash('error',err.message);
+		res.redirect('/campgrounds');
+	});
 });
 
 module.exports = router;

@@ -1,7 +1,20 @@
-$('#confirmdelete').on('load', () => {
-	$('#confirmdelete').hide();
-})
+console.log('javascript loaded');
 
-$('#deletebutton').on('click', () => {
-	$('.#confirmdelete').show();
+$('document').ready(function() {
+	
+	$('#newPassword').on('input',function() {
+		$('#noMatch').show();
+	});
+
+	$('#confirmNewPassword').on('input',function() {
+		if($('#newPassword').val() === $('#confirmNewPassword').val()) {
+			$('#noMatch').hide();
+			$('#match').show();
+		}
+		else {
+			$('#noMatch').show();
+			$('#match').hide();
+		}
+	});
 });
+

@@ -5,10 +5,15 @@
 				<h1 class="display-4 text-center">Log In</h1>
 						<form name="newuser" action="/login" method="POST">
 							<div class="form-group">
+								<label for="username">Username</label>
 								<input type="text" name="username"  class="form-control" placeholder="Username" autofocus="autofocus">
 							</div>
 							<div class="form-group">
+								<label for="password">Password</label>
 								<input type="password" name="password" class="form-control" placeholder="Password">
+								<p>
+									<a href="/forgot">Forgot password?</a>
+								</p>
 							</div>
 							<div class="form-group">
 								<button class="btn btn-lg btn-primary btn-block">

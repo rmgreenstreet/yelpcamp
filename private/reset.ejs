@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>HTML Template</title>
+	<meta name="description" content="HTML Template">
+	<meta name="author" content="Robert Greenstret">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<STYLE>
+		body {
+			font-family:Tahoma, Arial,sans-serif;
+			color:black;
+		}
+		.container {
+			/* height: 100vh;
+			min-height: 100vh; */
+			width:80%;
+			border:none;
+		}
+		.header {
+			background-color:#949494;
+		}
+		.header h1 {
+			color:#fff;
+		}
+	</STYLE>
+</head>
+
+<body>
+	<table class="container">
+		<tr>
+			<td colspan="" class="header">
+				<h1>
+					Password reset for <%= foundUser.username %>
+				</h1>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="">
+				<p>
+					You are receiving this email because you (or someone else) have requested to reset the password for your YelpCamp account.
+				</p>
+				<p>
+					Please click on the following link, or paste it into your browser's address bar, to set a new password:
+				</p>
+				<blockquote>
+					http://<%= address %>/reset/<%= token %>
+				</blockquote>
+				<p>
+					This link will expire 30 minutes from receipt of this email (<%= Date.now()+18000000 %>)
+				</p>
+				<p>
+					If you did not request to reset your YelpCamp password, please ignore this email, and your password will remain the same.
+				</p>
+			</td>
+		</tr>
+	</table>
+</body>
+
+</html>
