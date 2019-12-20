@@ -23,7 +23,7 @@
 		<% campgrounds.forEach(function(campground){ %>
 			<!-- <div class="campground col-12 col-sm-6 col-md-3 text-center"> -->
 				<div class="card">
-					<img src="<%= campground["image"] %>" width="200px" class="card-img-top img-fluid">
+					<img src="<%= campground["image"]['url'] %>" width="200px" class="card-img-top img-fluid">
 					<div class="card-block text-center">
 						<h4 class="card-title"><%= campground["name"] %></h4>
 						<p>

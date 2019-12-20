@@ -6,9 +6,10 @@ const express = require('express'),
 	  User = require("../models/user.js"),
 	  middleware = require('../middleware'),
 	  methodOverride = require('method-override'),
-	  async = require('async'),
 	  nodemailer = require('nodemailer'),
-	  ejs = require('ejs');
+	  ejs = require('ejs'),
+	  cloudinary = require('cloudinary').v2,
+	  async = require('async');
 
 
 

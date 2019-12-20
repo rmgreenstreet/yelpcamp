@@ -21,7 +21,17 @@
 								<input type="password" name="password" class="form-control" placeholder="Set a password">
 							</div>
 							<div class="form-group">
-								<button class="btn btn-lg btn-primary btn-block">
+								<label for="confirmPassword">Confirm Password</label>
+								<input type="password" name="confirmPassword" class="form-control" placeholder="Confirm password">
+								<p id="noMatch" style="display:none;" class="text-warning">
+									Passwords do not match
+								</p>
+								<p id="match" style="display:none;" class="text-success">
+									Passwords match
+								</p>
+							</div>
+							<div class="form-group">
+								<button class="btn btn-lg btn-primary btn-block" id="accountSubmit">
 									Submit
 								</button>
 							</div>
