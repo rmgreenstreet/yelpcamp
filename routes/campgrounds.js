@@ -126,7 +126,7 @@ router.get("/:id", (req,res) => {
 });
 
 //edit routes
-router.get('/:id/edit',middleware.checkCampgroundOwnership,(req,res) => {
+router.get('/:id/edit',middleware.isLoggedIn,middleware.checkCampgroundOwnership,(req,res) => {
 		Campground.findById(req.params.id, (err,foundCampground) => {
 			if(err){
 				res.redirect('back');
@@ -140,49 +140,48 @@ router.get('/:id/edit',middleware.checkCampgroundOwnership,(req,res) => {
 //update route
 
 router.put('/:id',middleware.checkCampgroundOwnership, upload.single('image'),(req,res) => {
-	let editedCampground = new Campground(req.body.campground);
-	//get google maps lat, long, and properly formatted address and apply it to campground.location/lat/long
-	geocoder.geocode(editedCampground.location, (err, data) => {
+	let updatedCampground = req.body.campground;
+	geocoder.geocode(updatedCampground.location, (err, data) => {
 		if (err || !data.length) {
-		  req.flash('error', err.message);
-		  return res.redirect('back');
+		req.flash('error', "Geocoding error: "+err.message);
+		return res.redirect('back');
 		}
 		else {
-			editedCampground.lat = data[0].latitude;
-			editedCampground.lng = data[0].longitude;
-			editedCampground.location = data[0].formattedAddress;
-			  //make campground.author be currently logged in user
-			editedCampground.author = {
-			  id: req.user._id,
-			  username: req.user.username	
-			}	
-		};
-		if(!req.file) {
-			req.flash('error','Please upload an accepted file type');
-			res.redirect('back');
-		}
-		else {
-			cloudinary.uploader.upload(req.file.path, {public_id:req.body.publicId}, (err,result) => {
-				if(err) {
-					req.flash('error',err.message);
-					res.redirect('back');
-				}
-				else {
-					//add cloudinary url for the image to the campground object under image property
-					editedCampground.image.url = result.secure_url;
-					editedCampground.image.publicId = result.public_id;
-					Campground.findByIdAndUpdate(req.params.id, editedCampground, (err,updatedCampground) => {
-						if(err) {
-							cloudinary.api.delete_resources(result.public_id)
-							req.flash('error',err.message)
-							res.redirect('back');
-						}
-						else {
-							res.redirect('/campgrounds/'+req.params.id);
-						}
-					});
-				}
-			});
+			updatedCampground.lat = data[0].latitude
+							.lng = data[0].longitude
+							.location = data[0].formattedAddress;
+			if(!req.file) {
+				req.flash('error','Please upload an accepted file type');
+				res.redirect('back');
+			}
+			else {
+				cloudinary.uploader.upload(req.file.path, {public_id:req.body.publicId}, (err,result) => {
+					if(err) {
+						req.flash('error',"Image Upload Error: "+err.message);
+						res.redirect('back');
+					}
+					else {
+						Campground.findByIdAndUpdate(req.params.id,{
+							updatedCampground,
+							'image.url':result.url,
+							'image.publicId':result.public_id
+						},(err,changedCampground) => {
+							if(err) {
+								req.flash('error',"Campground Update Error: "+err.message);
+								res.redirect('back');
+							}
+							else if(!changedCampground) {
+								req.flash('error','Campground not updated');
+								res.redirect('back');
+							}
+								else {
+									req.flash('success','Campground successfully updated!');
+									res.redirect('/campgrounds/'+changedCampground.id);
+							}
+						});
+					}
+				});
+			}
 		}
 	});
 });

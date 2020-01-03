@@ -1,3 +1,4 @@
 .env
 mongod
 mongoimport.txt
+.vscode

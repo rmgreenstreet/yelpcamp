@@ -1,5 +1,4 @@
-const mongoose 	= require('mongoose'),
-	  Comment 	= require('./comment.js');
+const mongoose 	= require('mongoose');
 
 
 const campgroundSchema = new mongoose.Schema({
