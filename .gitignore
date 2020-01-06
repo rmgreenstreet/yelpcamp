@@ -2,3 +2,4 @@
 mongod
 mongoimport.txt
 .vscode
+*.code-workspace
