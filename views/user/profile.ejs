@@ -4,8 +4,8 @@
 			<div class="col-md-3 mt-3">
 				<div class="list-group">
 					<li class="list-group-item">
-						<% if(user.image && user.image!="") { %>
-							<img src="<%= user.image %>" alt="<%= user.username %>'s Picture" class="img img-fluid">
+						<% if(user.image.url && user.image.url!="") { %>
+							<img src="<%= user.image.url %>" alt="<%= user.username %>'s Picture" class="img img-fluid">
 						<% } else { %>
 							<img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="img img-fluid">
 						<% } %>

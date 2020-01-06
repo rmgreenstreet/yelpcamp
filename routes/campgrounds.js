@@ -167,6 +167,7 @@ router.put('/:id',middleware.checkCampgroundOwnership, upload.single('image'),(r
 							'image.publicId':result.public_id
 						},(err,changedCampground) => {
 							if(err) {
+								cloudinary.uploader.destroy({public_id:result.public_id});
 								req.flash('error',"Campground Update Error: "+err.message);
 								res.redirect('back');
 							}

@@ -1,7 +1,7 @@
 const express = require('express'),
 	  router = express.Router({mergeParams:true}),
 	  Campground = require("../models/campground.js"),
-	  Comment = require("../models/comment.js"),
+	  bodyParser = require('body-parser'),
 	  passport= require("passport"),
 	  User = require("../models/user.js"),
 	  middleware = require('../middleware'),
@@ -9,53 +9,81 @@ const express = require('express'),
 	  nodemailer = require('nodemailer'),
 	  ejs = require('ejs'),
 	  cloudinary = require('cloudinary').v2,
+	  multer = require('multer'),
 	  async = require('async');
 
+	  let storage = multer.diskStorage({
+		filename: function(req,file,callback) {
+			callback(null,Date.now() + file.originalname);
+		},
+		folder:'users'
+	 });
+	
+	let imageFilter = function (req,file,cb) {
+		//accept image files only
+		if (!file.originalname.match(/\.jpg|jpeg|png|gif)$/i)) {
+			return cb(new Error('Only image files (jpg, jpeg, png, gif) are allowed!'), false);
+		}
+		else {
+			cb(null,true);
+		}
+	};
+	
+	let upload = multer({storage:storage, filefilter:imageFilter});
+	
+	cloudinary.config({
+		cloud_name:process.env.CLOUDINARY_NAME,
+		api_key: process.env.CLOUDINARY_API_KEY,
+		api_secret: process.env.CLOUDINARY_API_SECRET
+	});
+
+
+router.use(bodyParser.urlencoded({extended:true}));
+
+function createUser(req,res,adminStatus){
+	cloudinary.uploader.upload(req.file.path, (err,result) => {
+	if(err) {
+		req.flash('error',"Image Upload Error: "+err.message);
+		res.redirect('back');
+	}
+	else {
+		var newUser = new User({username:req.body.username,email:req.body.email,'image.url':result.url,'image.publicId':result.public_id,isAdmin:adminStatus});
+		User.register(newUser,req.body.password,(err,user)=>{
+			if(err){
+				cloudinary.uploader.destroy(result.public_id);
+				req.flash('error','Account Creation Error: '+err.message);
+				console.log(err);
+				res.redirect('back');
+				}
+			else {
+				passport.authenticate('local')(req,res,()=> {
+					if(adminStatus === true) {
+						req.flash('success','Admin Account Created! Welcome to the team, '+req.body.username)
+					}
+					else {
+						req.flash('success','Account created! Welcome to the club, '+req.body.username+'!');
+					}
+					res.redirect('/profile/'+user._id);
+				});
+				}
+			});
+		}
+	});
+};
 
 
 //register form route
 router.get('/register',(req,res)=>{
-	res.render('user/register/subscriber.ejs', {page:'register'});
-});
-
-//admin register form route
-router.get('/register/admin',(req,res)=>{
-	res.render('user/register/admin.ejs', {page:'register'});
+	res.render('user/register.ejs', {page:'register'});
 });
 
 //signup logic
-router.post('/register',(req,res)=>{
-	var newUser = new User({username:req.body.username,image:req.body.image,email:req.body.email});
-	User.register(newUser,req.body.password,(err,user)=>{
-		if(err){
-			req.flash('error',err.message);
-			console.log(err);
-			return res.redirect('back');
-		}
-		passport.authenticate('local')(req,res,()=> {
-			req.flash('success','Account created. Welcome to the club, '+req.body.username+'!');
-			res.redirect('/campgrounds');
-		})
-	});
-});
-
-//admin signup logic
-router.post('/register',(req,res)=>{
-	var newUser = new User({username:req.body.username,image:req.body.image});
-	
+router.post('/register', upload.single('image'),(req,res)=>{
 	if(req.body.adminCode == process.env.ADMINCODE){
-		newUser.isAdmin=true;
-		User.register(newUser,req.body.password,(err,user)=>{
-			if(err){
-				req.flash('error',err.message);
-				console.log(err);
-				return res.redirect('/register');
-			}
-			passport.authenticate('local')(req,res,()=> {
-				req.flash('success','Account created. Welcome to the club, '+req.body.username+'!');
-				res.redirect('/campgrounds');
-			})
-		});
+		createUser(req,res,true);
+	}
+	else {
+		createUser(req,res,false);
 	}
 });
 
@@ -112,22 +140,58 @@ router.get('/profile/:id/edit',middleware.checkProfileOwnership,(req,res) => {
 });
 
 //update route
-router.put('/profile/:id',middleware.checkProfileOwnership,(req,res) => {
-	//find and update the correct user
-	User.findByIdAndUpdate(req.user.id, req.body.user, (err,updatedUser) => {
-		if(err) {
-			req.flash('error',err.message);
-			res.redirect('back');
-		}
-		else {
-			req.flash('success','Your profile has been updated!');
-			res.redirect('/profile/'+req.user.id);
-		}
-	});
+router.put('/profile/:id',middleware.isLoggedIn,middleware.checkProfileOwnership, upload.single('image'),(req,res) => {
+	//check to see whether an image was uploaded
+	if(!req.file) {
+		//if not, only update username
+		User.findByIdAndUpdate(req.user.id, {username:req.body.user.username}, (err) => {
+			if(err) {
+				req.flash('error','User update error: '+err.message);
+				res.redirect('back');
+			}
+			else {
+				req.flash('success','Your profile has been updated!');
+				res.redirect('/profile/'+req.user.id);
+			}
+		});
+	}
+	else {
+		//if an image was uploaded, send it to cloudinary as well as updating the username
+		cloudinary.uploader.destroy(req.body.publicId,(err) => {
+			if(err) {
+				req.flash('error','Image Upload Error: Please try again');
+				console.log(err.message);
+				res.redirect('back');
+			}
+			else {
+				cloudinary.uploader.upload(req.file.path,{folder:users}, (err,result) => {
+					if(err) {
+						req.flash('error',"Image Upload Error: "+err.message);
+						res.redirect('back');
+					}
+					else {
+						console.log(result.url);
+						User.findByIdAndUpdate(req.user.id, {username:req.body.user.username,'image.url':result.url,'image.publicId':result.public_id}, (err) => {
+							if(err){
+								cloudinary.uploader.destroy(result.public_id);
+								req.flash('error','User update error: '+err.message)
+								res.redirect('back');
+							}
+							else {
+								req.flash('success','You have updated your profile');
+								res.redirect('/profile/'+req.user.id);
+							}
+						});
+					}
+				});
+			}
+		});
+			
+	}
 });
 
 //delete user route
-router.delete('/profile/:id',middleware.checkProfileOwnership,(req,res) => {
+router.delete('/profile/:id',middleware.isLoggedIn,middleware.checkProfileOwnership,(req,res) => {
 		User.findByIdAndRemove(req.params.id,(err) =>{
 			if(err){
 				req.flash('error',err.message)
