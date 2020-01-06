@@ -192,16 +192,16 @@ router.put('/profile/:id',middleware.isLoggedIn,middleware.checkProfileOwnership
 
 //delete user route
 router.delete('/profile/:id',middleware.isLoggedIn,middleware.checkProfileOwnership,(req,res) => {
-		User.findByIdAndRemove(req.params.id,(err) =>{
-			if(err){
-				req.flash('error',err.message)
-				res.redirect('back');
-			}
-			else {
-				req.flash('success','You have deleted your account');
-				res.redirect('/campgrounds');
-			}
-		});
+	User.findByIdAndRemove(req.params.id,(err) =>{
+		if(err){
+			req.flash('error',err.message)
+			res.redirect('back');
+		}
+		else {
+			req.flash('success','You have deleted your account');
+			res.redirect('/campgrounds');
+		}
+	});
 });
 
 //logout route

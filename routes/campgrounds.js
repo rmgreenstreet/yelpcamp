@@ -1,3 +1,6 @@
+function escapeRegex(text) {
+	return text.replace(/[-\]{}()*+?.,\\^$!#\s]/g,"\\$&");
+};
 
 const express = require('express'),
 	  router = express.Router({mergeParams:true}),
@@ -47,17 +50,28 @@ var geocoder = NodeGeocoder(mapsOptions);
 
 //index route
 router.get("/",(req,res) => {
-	
-	//get all campgrounds from mogo then render the page
-	Campground.find({},(err,allCampgrounds)=>{
-		
+	let search = "";
+	if(req.query.searchTerm) {
+		search = new RegExp(escapeRegex(req.query.searchTerm),'gi');
+	}
+	else {
+		search = new RegExp(".");
+	}
+	Campground.find({name:search},(err,foundCampgrounds)=>{
+		console.log(foundCampgrounds.length + " Campgrounds found");
 		if(err){
+			req.flash('error',"Search Error: "+err.message);
+			res.redirect('back');
 			console.log(err);
 		}
-		else {
-			console.log("Campgrounds found");
-			res.render('campgrounds/index.ejs',{campgrounds:allCampgrounds, page:'campgrounds'});
+		else if (foundCampgrounds.length < 1 ){
+			req.flash('error','No campgrounds match that search. Please try again.');
+			res.redirect('campgrounds/');
 		}
+		else {
+			res.render('campgrounds/index.ejs',{campgrounds:foundCampgrounds, page:'campgrounds'});
+		}
+		
 	});
 });
 
