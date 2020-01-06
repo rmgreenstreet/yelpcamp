@@ -34,6 +34,12 @@
 				<a class="nav-item nav-link" href="/profile/<%= currentUser._id %>">Signed In As <%= currentUser.username %></a>
 				<a class="nav-item nav-link" href="/logout" id="signup_button">Log Out</a>
 				<% }; %>
+			<form name="searchCampgrounds" action="/campgrounds" method="get" class="form-inline">
+				<div class="input-group">
+					<input class="form-control mr-sm-2" type="search" placeholder="Search Campgrounds" aria-label="Search" name="searchTerm">
+					<button class="btn btn-outline-light my-2 my-sm-0 input-group-append" type="submit">Search</button>
+				</div>
+			</form>
 			</div>
 		  </div>
 		</nav>
