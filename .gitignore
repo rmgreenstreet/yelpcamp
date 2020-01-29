@@ -4,5 +4,5 @@ mongoimport.txt
 .vscode
 *.code-workspace
 yelpcamp.code-workspace
-/node_modules
-/public/img/seed
+node_modules/
+public/img/seed/
