@@ -10,8 +10,8 @@
 							<img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="img img-fluid">
 						<% } %>
 					</li>
+					<% if((currentUser && user._id.equals(currentUser.id)) || (currentUser && currentUser.isAdmin)){ %>
 					<li class="list-group-item">
-						<% if((currentUser && user._id.equals(currentUser.id)) || (currentUser && currentUser.isAdmin)){ %>
 						<div class="changebuttons row">
 							<a class="btn btn-warning btn-block mb-1" href="/profile/<%= user.id %>/edit">Edit Profile</a>
 							<a class="btn btn-info btn-block mb-1" href="/profile/<%= user.id %>/forgot">Reset Password</a>
@@ -41,8 +41,12 @@
 							  </div>
 							</div>
 						</div>
-						<% } %>
 					</li>
+					<% } else { %>
+						<li class="list-group-item">
+							<a href='/follow/<%= user.id %>' id="followUser">Follow</a>
+						</li>
+					<% } %>
 					<li class="list-group-item"><a href="/campgrounds" class="">Back to Campgrounds</a></li>
 				</div>
 			</div>

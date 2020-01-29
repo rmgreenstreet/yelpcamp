@@ -5,12 +5,15 @@ function escapeRegex(text) {
 const express = require('express'),
 	  router = express.Router({mergeParams:true}),
 	  Campground = require("../models/campground.js"),
+	  Notification = require("../models/notification.js"),
 	  middleware = require('../middleware'), 
 	  NodeGeocoder = require('node-geocoder'),
 	  cloudinary = require('cloudinary').v2,
 	  multer = require('multer'),
 	  User = require('../models/user'),
 	  async = require('async');
+const mbxGeocoding = require ('@mapbox/mapbox-sdk/services/geocoding');
+const geocodingClient = mbxGeocoding({accessToken:process.env.MAPBOX_TOKEN});
 
 
 let storage = multer.diskStorage({
@@ -82,25 +85,29 @@ router.get("/new",middleware.isLoggedIn, (req,res) => {
 
 //CREATE - add new campground to DB
 router.post("/", middleware.isLoggedIn, upload.single('image'), async function (req, res) {
+	console.log(req.body.campground);
 	 try {
 		// get data from form and add to campgrounds array
-		const name = req.body.name;
+		const newCampground = req.body.campground;
 		const image = await cloudinary.uploader.upload(req.file.path);
-		const locationData = await geocoder.geocode(newCampground.location);
-		const desc = req.body.description;
+		newCampground.image = {url:image.secure_url,publicId:image.public_id};
+
+		const locationData = await await geocodingClient.forwardGeocode({
+			query:req.body.campground.location,
+			limit:1
+		})
+		.send();
+		console.log(locationData.body.features[0]);
 		const author = {
 			id: req.user._id,
 			username: req.user.username
 		}
-		const newCampground = {
-			name: name
-		   , image: {url:image.secure_url
-		   , publicId: image.public_id}
-		   , lat:locationData[0].latitude
-		   , lng:locationData[0].longitude
-		   , location:locationData[0].formattedAddress
-		   , description: desc, author:author
-	   };
+		newCampground.location = locationData.body.features[0].place_name;
+		newCampground.lat = locationData.body.features[0].geometry.coordinates[1];
+		newCampground.lng = locationData.body.features[0].geometry.coordinates[0];
+		newCampground.author = author;
+		console.log(newCampground);
+
 	   let campground = await Campground.create(newCampground);
 	   let user = await User.findById(req.user._id).populate('followers').exec();
 	   let newNotification = {
@@ -116,6 +123,7 @@ router.post("/", middleware.isLoggedIn, upload.single('image'), async function (
 	   //redirect back to campgrounds page
 	   res.redirect(`/campgrounds/${campground.id}`);
 	 } catch(err) {
+		 console.log(err);
 	   req.flash('error', err.message);
 	   res.redirect('back');
 	 }

@@ -8,7 +8,8 @@ const NotificationSchema = new mongoose.Schema({
     campgroundId: {
         type: mongoose.Schema.Types.ObjectId,
         ref:'Campground'
-    }
+    },
+    username:String
 });
 
 module.exports= mongoose.model("Notification", NotificationSchema);

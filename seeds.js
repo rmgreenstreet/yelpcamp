@@ -1,83 +1,130 @@
-const mongoose 		= require("mongoose"),
-	  Campground 	= require("./models/campground.js"),
-	  Comment   	= require("./models/comment.js"),
-	  seeds = [
-    {
-        name: "Turkey Point", 
-        image: {
-			url: 'https://res.cloudinary.com/rgreenstreet/image/upload/v1576870545/turkeypoint_tjtplv.jpg',
-			publicId:''
-			   },
-        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-		author: {
-			id:"5deff8bd60ff5c04a8727abc",
-			username:"Joe Schmoe"
-		},
-		price:12,
-		location:"30967 Turkey Point Prkwy, Osage City, KS 66523",
-		lat:38.551001,
-		lng:-95.859732,
-    },
-    {
-        name: "Desert Mesa", 
-        image: {
-			url: 'https://res.cloudinary.com/rgreenstreet/image/upload/v1576870545/desertmesa_glo3vl.jpg',
-			publicId:''
-			   },
-        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-		author: {
-			id:"5deff8bd60ff5c04a8727abc",
-			username:"Joe Schmoe"
-		},
-		price:15,
-		location:"Cliff Palace Loop, Mesa Verde National Park, CO 81330",
-		lat:37.169037,
-		lng:-108.470609,
-    },
-    {
-        name: "Canyon Floor", 
-        image: {
-			url: 'https://res.cloudinary.com/rgreenstreet/image/upload/v1576870545/canyonfloor_llubac.jpg',
-			publicId:''
-			   },
-        description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-		author: {
-			id:"5deff8bd60ff5c04a8727abc",
-			username:"Joe Schmoe"
-		},
-		price:30,
-		location:"40 S Kaibab Trail, Grand Canyon Village, AZ 86023",
-		lat:36.091558,
-		lng:-112.086602,
-    }
-];
- 
-async function seedDB(){
+const mongoose 		= require("mongoose")
+const Campground 	= require("./models/campground.js");
+const Comment   	= require("./models/comment.js");
+const User   	= require("./models/user.js");
+const fs = require('fs');
+const faker = require('faker');
+const parks = require('./parks.js');
+const async = require('async');
+
+//path to filler/stock images to use for posts
+const seedImages = 'public/img/seed';
+let imageArray = [];
+
+async function gatherImages () {
+	//look in that directory and for each file, add the path to an array
+	fs.readdir(seedImages, (err, files) => {
+		if(err) {
+			return console.error('could not read the source directory: ',err);
+		}
+		files.forEach(file => {
+			console.log(file);
+			imageArray.push('/img/seed/'+file);
+		});
+		console.log('imageArray populated with '+imageArray.length+' images');
+	});
+}
+
+	
+
+//called within seedPosts function: delete all users (except you/admin) and generate 50 more
+async function generateUsers() {
+	console.log('creating 50 users');
 	try {
-	await Comment.deleteMany({});
-	console.log('Campgrounds removed');
-	await Campground.deleteMany({});
-	console.log('Comments removed');
-	for(var seed of seeds) {
-		let campground = await Campground.create(seed);
-		console.log('Campground created');
-		let comment = await Comment.create(
-			{
-				text: "This place is great, but I wish there was internet",
-				author: {
-						id: "5deff8bd60ff5c04a8727abc",
-						username:"Homer"
-					}
-			});
-		console.log('Comment created');
-		campground.comments.push(comment);
-		campground.save();
-		console.log('Comment added to the created campground');
-	};
+		//change the username key to the username you want to keep
+		await User.deleteMany({});
+		await User.register({username:'robert',email:'robertgreenstreet@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
+		await User.register({username:'potatohead',email:'potatohead@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
+		await User.register({username:'somethingwicked',email:'somethingwicked@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'thiswaycomes');
+		console.log('all current users deleted');
 	}
-	catch(err) {
+	catch (err) {
+		console.log(err);
+	}
+	try {
+		//register 50 new users with random usernames and passwords generated by faker
+		//originally had some errors thrown because faker has a limited selection of first names, so concatenated first and last names
+		for (let i = 0;i < 50;i++) {
+		const user = await User.register({username:(faker.name.firstName()+faker.name.lastName()),email:faker.internet.email(),image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},faker.internet.password());
+		console.log(`user ${i+1}, username: ${user.username} registered`);
+		}
+		console.log('50 users registered');
+	}
+	catch (err) {
 		console.log(err);
 	}
 };
+
+//called within the seedDb function for each campground, generate between 1 and 5 reviews, with between 1 and 5 stars each
+async function generateComments(campground, users) {
+	//.ceil() used to make sure at least one rating was created
+	const randomCommentCount = Math.ceil(Math.random() * 5);
+	console.log(`creating ${randomCommentCount} Comments for ${campground.name}`);
+	try {
+		for(let i = 0;i < randomCommentCount;i++){
+			console.log(`creating Comment # ${i+1} for campground '${campground.name}'`);
+			//choose a random user from all users (including you) as the author
+			const randomUserIndex = Math.floor(Math.random() *users.length);
+			let commentData = {
+				body:faker.lorem.paragraph(),
+				author:users[randomUserIndex]._id
+			}
+			const newComment = await Comment.create(commentData);
+			console.log(`comment # ${i+1} added to campground`)
+			campground.comments.push(newComment);
+		}
+		await campground.save();
+	}
+	catch (err) {
+		console.log(err);
+	}
+};
+
+async function seedDb() {
+	try {
+		await gatherImages();
+		await generateUsers();
+		//find all users to be used as authors for posts/reviews
+		const allUsers = await User.find({});
+		console.log(`${allUsers.length} users found`);
+		//decide how many posts between 100 and 500 to create
+		const numberOfPosts = Math.floor(Math.random()*(200-100) +100);
+		console.log(`creating ${numberOfPosts} campgrounds`);
+		//delete all existing posts
+		await Campground.deleteMany({});
+		console.log('all posts removed');
+		for(const i of new Array(numberOfPosts)) {
+			//choose which of the 1000 parks in the parks.js file to use to create the post location
+			const random1000 = Math.floor(Math.random() * parks.length);
+			//choose which of the 50 users to set as the author
+			const randomUserIndex = Math.floor(Math.random() * allUsers.length);
+			const randomImageIndex = Math.floor(Math.random() * imageArray.length);
+			const name = faker.commerce.productName();
+			const description = faker.lorem.text();
+			const price = faker.commerce.price();
+			const campgroundData = {
+				name,
+				description,
+				price,
+				image:{
+					url:imageArray[randomImageIndex]
+				},
+				location: `${parks[random1000].city}, ${parks[random1000].state}`,
+				lat:parks[random1000].latitude,
+				lng:parks[random1000].longitude,
+				author: {id:allUsers[randomUserIndex]._id,username:allUsers[randomUserIndex].username},
+			}
+			let campground = new Campground(campgroundData);
+			//generate comments, passing in the new campground itself and the array of all users
+			await generateComments(campground,allUsers);
+			await campground.save();
+		}
+		console.log(`${numberOfPosts} campgrounds created`);
+	}
+	catch (err) {
+		console.log(err);
+	}
+	
+}
  
-module.exports = seedDB;
+module.exports = seedDb;

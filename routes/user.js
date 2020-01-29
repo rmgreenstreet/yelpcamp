@@ -4,6 +4,7 @@ const express = require('express'),
 	  bodyParser = require('body-parser'),
 	  passport= require("passport"),
 	  User = require("../models/user.js"),
+	  Notification = require("../models/notification.js"),
 	  middleware = require('../middleware'),
 	  methodOverride = require('method-override'),
 	  nodemailer = require('nodemailer'),
@@ -107,9 +108,9 @@ router.get('/profile/:id', async function (req,res) {
 	try {
 		let user = await User.findById(req.params.id)
 		.populate('followers')
-		.exec((err,user) => err ? err : user );
+		.exec();
 		let foundCampgrounds = await Campground.find({'author.id':req.params.id})
-		.exec((err,foundCampgrounds) => err ? err : foundCampgrounds);
+		.exec();
 		res.render('user/profile.ejs',{user,page:'profile', foundCampgrounds});
 	}
 	catch(err) {
@@ -151,9 +152,9 @@ router.get('/notifications', isLoggedIn, async function (req,res) {
 
 
 //handle notifications
-router.get('notifications/:notification_id', isLoggedIn, async function (req,res) {
+router.get('/notifications/:notification_id', isLoggedIn, async function (req,res) {
 	try {
-		let notification = await Notification.findById(req.params.id);
+		let notification = await Notification.findById(req.params.notification_id);
 		notification.isRead = true;
 		await notification.save();
 		res.redirect(`/campgrounds/${notification.campgroundId}`);

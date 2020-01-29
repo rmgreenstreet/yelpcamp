@@ -11,7 +11,6 @@ const 	express 				= require("express"),
 		pasportLocalMongoose	= require('passport-local-mongoose'),
 		User					= require('./models/user.js'),
 	  	expressSession			= require('express-session'),
-		seedDB					= require('./seeds.js'),
 	  	flash					= require('connect-flash');
 
 const commentRoutes = require("./routes/comments.js"),
@@ -20,7 +19,6 @@ const commentRoutes = require("./routes/comments.js"),
 	  userRoutes = require('./routes/user.js');
 
 //app config
-
 
 mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority",{
 	useNewUrlParser:true, 
@@ -59,8 +57,6 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// seedDB();
-
 
 app.use( async function(req, res, next){
 	res.locals.currentUser = req.user;
@@ -87,6 +83,10 @@ app.use(userRoutes);
 app.get("*",(req,res) => {
      res.send("This page does not exist. Please go back and try again.")
      });
+
+
+// const seedDb = require('./seeds.js');
+// seedDb();
 
 let port = process.env.PORT;
 if (port == null || port == "") {
