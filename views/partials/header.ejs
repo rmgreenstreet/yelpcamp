@@ -25,22 +25,45 @@
 			<span class="navbar-toggler-icon"></span>
 		  </button>
 		  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-			<div class="navbar-nav ml-auto">
-			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'campgrounds' ? 'active' : '' %>" href="/campgrounds">Campgrounds<span class="sr-only">(current)</span></a>
-				<% if(!currentUser){ %>
-			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'login' ? 'active' : '' %>" href="/login" id="login_button">Log In</a>
-			  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'register' ? 'active' : '' %>" href="/register" id="signup_button">Sign Up</a>
-				<% } else { %>
-				<a class="nav-item nav-link" href="/profile/<%= currentUser._id %>">Signed In As <%= currentUser.username %></a>
-				<a class="nav-item nav-link" href="/logout" id="signup_button">Log Out</a>
-				<% }; %>
+			<ul class="navbar-nav ml-auto">
+			  <li class="nav-item">
+				  <a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'campgrounds' ? 'active' : '' %>" href="/campgrounds">Campgrounds<span class="sr-only">(current)</span></a>
+			  </li>
+			<% if(!currentUser){ %>
+				<li class="nav-item">
+					<a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'login' ? 'active' : '' %>" href="/login" id="login_button">Log In</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-item nav-link <%= typeof page !== 'undefined' && page === 'register' ? 'active' : '' %>" href="/register" id="signup_button">Sign Up</a>
+				</li>
+			<% } else { %>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					  Notifications <span class="badge"><%= notifications.length %></span>
+					</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					  <a class="dropdown-item" href="/notifications">View Past Notifications</a>
+					  <% notifications.forEach (notification => { %>
+						<a class="dropdown-item" href="/notifications/<%= notification.id %>">
+							<%= notification.username %> created a new campground!
+						</a>
+					  <% }); %>
+					</div>
+				  </li>
+				<li class="nav-item">
+					<a class="nav-item nav-link" href="/profile/<%= currentUser._id %>">Signed In As <%= currentUser.username %></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-item nav-link" href="/logout" id="logout_button">Log Out</a>
+				</li>
+			<% }; %>
 			<form name="searchCampgrounds" action="/campgrounds" method="get" class="form-inline">
 				<div class="input-group">
 					<input class="form-control mr-sm-2" type="search" placeholder="Search Campgrounds" aria-label="Search" name="searchTerm">
 					<button class="btn btn-outline-light my-2 my-sm-0 input-group-append" type="submit">Search</button>
 				</div>
 			</form>
-			</div>
+			</ul>
 		  </div>
 		</nav>
 		

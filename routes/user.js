@@ -10,32 +10,33 @@ const express = require('express'),
 	  ejs = require('ejs'),
 	  cloudinary = require('cloudinary').v2,
 	  multer = require('multer'),
+	  {isLoggedIn} = require('../middleware'),
 	  async = require('async');
 
-	  let storage = multer.diskStorage({
-		filename: function(req,file,callback) {
-			callback(null,Date.now() + file.originalname);
-		},
-		folder:'users'
-	 });
+const storage = multer.diskStorage({
+filename: function(req,file,callback) {
+	callback(null,Date.now() + file.originalname);
+},
+folder:'users'
+});
 	
-	let imageFilter = function (req,file,cb) {
-		//accept image files only
-		if (!file.originalname.match(/\.jpg|jpeg|png|gif)$/i)) {
-			return cb(new Error('Only image files (jpg, jpeg, png, gif) are allowed!'), false);
-		}
-		else {
-			cb(null,true);
-		}
-	};
+const imageFilter = function (req,file,cb) {
+	//accept image files only
+	if (!file.originalname.match(/\.jpg|jpeg|png|gif)$/i)) {
+		return cb(new Error('Only image files (jpg, jpeg, png, gif) are allowed!'), false);
+	}
+	else {
+		cb(null,true);
+	}
+};
 	
-	let upload = multer({storage:storage, filefilter:imageFilter});
-	
-	cloudinary.config({
-		cloud_name:process.env.CLOUDINARY_NAME,
-		api_key: process.env.CLOUDINARY_API_KEY,
-		api_secret: process.env.CLOUDINARY_API_SECRET
-	});
+const upload = multer({storage:storage, filefilter:imageFilter});
+
+cloudinary.config({
+	cloud_name:process.env.CLOUDINARY_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 
 router.use(bodyParser.urlencoded({extended:true}));
@@ -102,40 +103,70 @@ router.post("/login", passport.authenticate("local",
 });
 
 //show user profile
-router.get('/profile/:id', (req,res) => {
-		User.findById(req.params.id, (err,foundUser) => {
-			if(err){
-				req.flash('error',err.message);
-				res.redirect('back');
-			}
-			else if(!foundUser){
-				req.flash('error','This user does not exist');
-				res.redirect('back');
-			}
-			else {
-				Campground.find({'author.id':req.params.id}, (err,foundCampgrounds) =>{
-				if(err) {
-					req.flash('error',err.message);
-					res.render('back');
-				}
-				else {
-					res.render('user/profile.ejs',{user:foundUser,page:'profile', foundCampgrounds:foundCampgrounds});
-				}
-				});
-			}
-		});
+router.get('/profile/:id', async function (req,res) {
+	try {
+		let user = await User.findById(req.params.id)
+		.populate('followers')
+		.exec((err,user) => err ? err : user );
+		let foundCampgrounds = await Campground.find({'author.id':req.params.id})
+		.exec((err,foundCampgrounds) => err ? err : foundCampgrounds);
+		res.render('user/profile.ejs',{user,page:'profile', foundCampgrounds});
+	}
+	catch(err) {
+		req.flash('error',err.message);
+		res.redirect('back');
+	}
+});
+
+//follow user
+router.get('/follow/:id', isLoggedIn, async function (req,res) {
+	try {
+		let user = await User.findById(req.params.id);
+		user.followers.push(req.user._id);
+		await user.save();
+		req.flash('success', `You are now following ${user.username}'s posts!`);
+		res.redirect(`/profile/${req.params.id}`);
+	}
+	catch(err) {
+		req.flash('error',err.message);
+		res.redirect('back');
+	}
 });
 
 //view notifications
-
+router.get('/notifications', isLoggedIn, async function (req,res) {
+	try {
+		let user = await User.findById(req.user.id).populate({
+			path: 'notifications',
+			options: {sort:'-_id'}
+		}).exec();
+		let allNotifications = user.notifications;
+		res.render('notifications/index', {allNotifications});
+	}
+	catch (err) {
+		req.flash('error',err.message);
+		res.redirect('back');
+	}
+});
 
 
 //handle notifications
+router.get('notifications/:notification_id', isLoggedIn, async function (req,res) {
+	try {
+		let notification = await Notification.findById(req.params.id);
+		notification.isRead = true;
+		await notification.save();
+		res.redirect(`/campgrounds/${notification.campgroundId}`);
+	}
+	catch (err) {
+		req.flash('error',err.message);
+		res.redirect('back');
+	}
+});
 
 
 
-
-//edit route
+//edit profile route
 router.get('/profile/:id/edit',middleware.checkProfileOwnership,(req,res) => {
 	User.findById(req.user.id, (err,foundUser) => {
 		if(err) {

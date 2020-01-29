@@ -9,6 +9,7 @@ const express = require('express'),
 	  NodeGeocoder = require('node-geocoder'),
 	  cloudinary = require('cloudinary').v2,
 	  multer = require('multer'),
+	  User = require('../models/user'),
 	  async = require('async');
 
 
@@ -80,47 +81,44 @@ router.get("/new",middleware.isLoggedIn, (req,res) => {
 
 
 //CREATE - add new campground to DB
-router.post("/", middleware.isLoggedIn, upload.single('image'), function(req, res){
-	let newCampground = new Campground(req.body.campground);
-		
-	//get google maps lat, long, and properly formatted address and apply it to campground.location/lat/long
-	geocoder.geocode(newCampground.location, (err, data) => {
-		if (err || !data.length) {
-		  req.flash('error', err.message);
-		  return res.redirect('back');
+router.post("/", middleware.isLoggedIn, upload.single('image'), async function (req, res) {
+	 try {
+		// get data from form and add to campgrounds array
+		const name = req.body.name;
+		const image = await cloudinary.uploader.upload(req.file.path);
+		const locationData = await geocoder.geocode(newCampground.location);
+		const desc = req.body.description;
+		const author = {
+			id: req.user._id,
+			username: req.user.username
 		}
-		newCampground.lat = data[0].latitude;
-		newCampground.lng = data[0].longitude;
-		newCampground.location = data[0].formattedAddress;
-		  //make campground.author be currently logged in user
-		newCampground.author = {
-		  id: req.user._id,
-		  username: req.user.username			
-		};
-		cloudinary.uploader.upload(req.file.path, (err,result) => {
-			//add cloudinary url for the image to the campground object under image property
-			if(err) {
-				req.flash('error',err.message);
-				res.redirect('back');
-			}
-			else {
-				console.log(newCampground);
-				newCampground.image.url = result.secure_url;
-				newCampground.image.publicId = result.public_id;
-				// Create a new campground and save to DB
-				Campground.create(newCampground, function(err, newlyCreated){
-					if(err){
-						console.log(err);
-						cloudinary.api.delete_resources(result.public_id);
-					} else {
-						//redirect back to campgrounds page
-						console.log(newlyCreated);
-						res.redirect("/campgrounds");
-					}
-				});
-			}
-		});	
-	});
+		const newCampground = {
+			name: name
+		   , image: {url:image.secure_url
+		   , publicId: image.public_id}
+		   , lat:locationData[0].latitude
+		   , lng:locationData[0].longitude
+		   , location:locationData[0].formattedAddress
+		   , description: desc, author:author
+	   };
+	   let campground = await Campground.create(newCampground);
+	   let user = await User.findById(req.user._id).populate('followers').exec();
+	   let newNotification = {
+		 username: req.user.username,
+		 campgroundId: campground.id
+	   }
+	   for(const follower of user.followers) {
+		 let notification = await Notification.create(newNotification);
+		 follower.notifications.push(notification);
+		 follower.save();
+	   }
+ 
+	   //redirect back to campgrounds page
+	   res.redirect(`/campgrounds/${campground.id}`);
+	 } catch(err) {
+	   req.flash('error', err.message);
+	   res.redirect('back');
+	 }
 });
 
 

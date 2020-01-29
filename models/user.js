@@ -1,5 +1,6 @@
 const 	mongoose 					= require('mongoose'),
-		passportLocalMongoose 	= require('passport-local-mongoose');
+		passportLocalMongoose 	= require('passport-local-mongoose'),
+		Notification = require('./notification');
 
 
 const UserSchema = new mongoose.Schema({ 
@@ -15,7 +16,15 @@ const UserSchema = new mongoose.Schema({
 			default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}
 			,
 		publicId:String
-	}
+	},
+	followers: [
+		{type: mongoose.Schema.Types.ObjectId,
+		ref:'User'}
+	],
+	notifications: [
+		{type: mongoose.Schema.Types.ObjectId,
+		ref:'Notification'}
+	]
 });
 
 UserSchema.plugin(passportLocalMongoose);
