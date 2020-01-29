@@ -126,6 +126,15 @@ router.get('/profile/:id', (req,res) => {
 		});
 });
 
+//view notifications
+
+
+
+//handle notifications
+
+
+
+
 //edit route
 router.get('/profile/:id/edit',middleware.checkProfileOwnership,(req,res) => {
 	User.findById(req.user.id, (err,foundUser) => {

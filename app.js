@@ -12,8 +12,6 @@ const 	express 				= require("express"),
 		User					= require('./models/user.js'),
 	  	expressSession			= require('express-session'),
 		seedDB					= require('./seeds.js'),
-		Campground				= require('./models/campground.js'),
-		Comment					= require('./models/comment.js'),
 	  	flash					= require('connect-flash');
 
 const commentRoutes = require("./routes/comments.js"),
@@ -27,7 +25,8 @@ const commentRoutes = require("./routes/comments.js"),
 mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority",{
 	useNewUrlParser:true, 
 	useUnifiedTopology:true,
-	useFindAndModify: false
+	useFindAndModify: false,
+	useCreateIndex:true
 }).then(() => {
 	console.log('Connected to Mongoose DB')
 }).catch(err => {
