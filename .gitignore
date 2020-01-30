@@ -5,4 +5,3 @@ mongoimport.txt
 *.code-workspace
 yelpcamp.code-workspace
 node_modules/
-public/img/seed/

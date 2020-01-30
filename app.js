@@ -78,14 +78,11 @@ app.use( async function(req, res, next){
 });
 
 //requiring routes
-// app.use(indexRoutes);
+app.use(indexRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use(userRoutes);
 
-app.get("/", (req,res) => {
-	res.render('home.ejs');
-});
 
 app.get("*",(req,res) => {
      res.send("This page does not exist. Please go back and try again.")
