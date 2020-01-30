@@ -22,6 +22,7 @@ const commentRoutes = require("./routes/comments.js"),
 
 //app config
 
+
 mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+process.env.DB_PASSWORD+"@yelpcamp-wvcjs.mongodb.net/yelp_camp?retryWrites=true&w=majority",{
 	useNewUrlParser:true, 
 	useUnifiedTopology:true,
@@ -32,8 +33,6 @@ mongoose.connect(process.env.DATABASEURL || "mongodb+srv://robertgreenstreet:"+p
 }).catch(err => {
 	console.log('error: ',err.message)
 });
-
-console.log("Environment database URL: "+process.env.DATABASEURL);
 
 app.set('view engine','ejs');
 

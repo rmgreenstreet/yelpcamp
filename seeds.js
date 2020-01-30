@@ -5,11 +5,13 @@ const User   	= require("./models/user.js");
 const fs = require('fs');
 const faker = require('faker');
 const parks = require('./parks.js');
+const cloudinary = require('cloudinary');
 const async = require('async');
 
 //path to filler/stock images to use for posts
 const seedImages = 'public/img/seed';
 let imageArray = [];
+let imageObj = {}
 
 async function gatherImages () {
 	//look in that directory and for each file, add the path to an array
@@ -25,6 +27,20 @@ async function gatherImages () {
 	});
 }
 
+async function listCloudinaryImages () {
+	try {
+		imageObj = await cloudinary.v2.search
+		.expression('folder:seed')
+		.sort_by('public_id','desc')
+		.execute();
+		console.log(imageObj);
+		return imageObj;
+	}
+	catch(err) {
+		console.log(err);
+	}
+}
+
 	
 
 //called within seedPosts function: delete all users (except you/admin) and generate 50 more
@@ -33,9 +49,12 @@ async function generateUsers() {
 	try {
 		//change the username key to the username you want to keep
 		await User.deleteMany({});
-		await User.register({username:'robert',email:'robertgreenstreet@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
-		await User.register({username:'potatohead',email:'potatohead@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
-		await User.register({username:'somethingwicked',email:'somethingwicked@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'thiswaycomes');
+		const robert = await User.register({username:'robert',email:'robertgreenstreet@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
+		let potatohead = await User.register({username:'potatohead',email:'potatohead@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
+		let somethingwicked = await User.register({username:'somethingwicked',email:'somethingwicked@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'thiswaycomes');
+		potatohead.followers.push(robert._id);
+		somethingwiccked.followers.push(robert._id);
+		robert.save();
 		console.log('all current users deleted');
 	}
 	catch (err) {
@@ -82,10 +101,13 @@ async function generateComments(campground, users) {
 
 async function seedDb() {
 	try {
-		await gatherImages();
-		await generateUsers();
+
+		await listCloudinaryImages();
+		// await gatherImages();
+		// await generateUsers();
 		//find all users to be used as authors for posts/reviews
 		const allUsers = await User.find({});
+		// console.log(allUsers);
 		console.log(`${allUsers.length} users found`);
 		//decide how many posts between 100 and 500 to create
 		const numberOfPosts = Math.floor(Math.random()*(200-100) +100);
@@ -98,7 +120,7 @@ async function seedDb() {
 			const random1000 = Math.floor(Math.random() * parks.length);
 			//choose which of the 50 users to set as the author
 			const randomUserIndex = Math.floor(Math.random() * allUsers.length);
-			const randomImageIndex = Math.floor(Math.random() * imageArray.length);
+			const randomImageIndex = Math.floor(Math.random() * imageObj.resources.length);
 			const name = faker.commerce.productName();
 			const description = faker.lorem.text();
 			const price = faker.commerce.price();
@@ -107,7 +129,7 @@ async function seedDb() {
 				description,
 				price,
 				image:{
-					url:imageArray[randomImageIndex]
+					url:imageObj.resources[randomImageIndex].secure_url
 				},
 				location: `${parks[random1000].city}, ${parks[random1000].state}`,
 				lat:parks[random1000].latitude,
