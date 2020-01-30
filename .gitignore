@@ -6,4 +6,3 @@ mongoimport.txt
 yelpcamp.code-workspace
 node_modules/
 public/img/seed/
-.gitignore
