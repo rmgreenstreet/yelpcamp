@@ -91,10 +91,5 @@ app.get("*",(req,res) => {
 // const seedDb = require('./seeds.js');
 // seedDb();
 
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 8080;
-}
-app.listen(port, () => {
-	console.log("server has started, listening on port "+port);
-});
+app.listen(process.env.PORT, () => {
+	console.log("server has started, listening on port "+process.env.PORT);
