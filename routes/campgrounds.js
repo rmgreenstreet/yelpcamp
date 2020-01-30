@@ -58,19 +58,19 @@ router.get("/",(req,res) => {
 	else {
 		search = new RegExp(".");
 	}
-	Campground.find({name:search},(err,foundCampgrounds)=>{
-		console.log(foundCampgrounds.length + " Campgrounds found");
+	Campground.find({name:search}).sort({_id:-1}).exec((err,campgrounds)=>{
+		console.log(campgrounds.length + " Campgrounds found");
 		if(err){
 			req.flash('error',"Search Error: "+err.message);
 			res.redirect('back');
 			console.log(err);
 		}
-		else if (foundCampgrounds.length < 1 ){
+		else if (campgrounds.length < 1 ){
 			req.flash('error','No campgrounds match that search. Please try again.');
 			res.redirect('campgrounds/');
 		}
 		else {
-			res.render('campgrounds/index.ejs',{campgrounds:foundCampgrounds, page:'campgrounds'});
+			res.render('campgrounds/index.ejs',{campgrounds:campgrounds, page:'campgrounds'});
 		}
 		
 	});

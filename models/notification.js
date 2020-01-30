@@ -9,7 +9,11 @@ const NotificationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref:'Campground'
     },
-    username:String
+    username:String,
+    when:{
+        type:Date,
+        default:Date.now()
+    }
 });
 
 module.exports= mongoose.model("Notification", NotificationSchema);

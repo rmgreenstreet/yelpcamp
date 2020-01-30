@@ -112,6 +112,28 @@ body {
     margin-bottom:2rem;
 }
 
+.notification {
+  min-height:5vh;
+}
+
+.notification-thumbnail {
+  width:100%;
+  object-fit:contain;
+}
+
+.notification form {
+  display:inline;
+}
+
+.notification form button {
+    background: none!important;
+    border: none;
+    padding: 0!important;
+    color:#555;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 /* #copyright {
 	position:absolute;
 	bottom:0;
