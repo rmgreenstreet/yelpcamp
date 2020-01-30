@@ -10,7 +10,9 @@ const 	express 				= require("express"),
 		passport 				= require('passport'),
 		pasportLocalMongoose	= require('passport-local-mongoose'),
 		User					= require('./models/user.js'),
-	  	expressSession			= require('express-session'),
+		expressSession			= require('express-session'),
+		favicon = require('serve-favicon'),
+		path = require('path');
 	  	flash					= require('connect-flash');
 
 const commentRoutes = require("./routes/comments.js"),
@@ -36,6 +38,7 @@ console.log("Environment database URL: "+process.env.DATABASEURL);
 app.set('view engine','ejs');
 
 app.use(express.static("public")),
+app.use(favicon(path.join(__dirname, 'public','img','favicon.png')));
 app.use(methodOverride("_method"));
 app.use(expressSanitizer());
 app.use(passport.initialize());
