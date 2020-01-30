@@ -53,8 +53,9 @@ async function generateUsers() {
 		let potatohead = await User.register({username:'potatohead',email:'potatohead@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'password');
 		let somethingwicked = await User.register({username:'somethingwicked',email:'somethingwicked@gmail.com',image:{url:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}},'thiswaycomes');
 		potatohead.followers.push(robert._id);
-		somethingwiccked.followers.push(robert._id);
-		robert.save();
+		potatohead.save();
+		somethingwicked.followers.push(robert._id);
+		somethingwicked.save();
 		console.log('all current users deleted');
 	}
 	catch (err) {
