@@ -38,7 +38,7 @@ console.log("Environment database URL: "+process.env.DATABASEURL);
 app.set('view engine','ejs');
 
 app.use(express.static("public")),
-app.use(favicon(path.join(__dirname, 'public','img','favicon.png')));
+app.use(favicon(path.join(__dirname, 'public','img','favicon.ico')));
 app.use(methodOverride("_method"));
 app.use(expressSanitizer());
 app.use(passport.initialize());
