@@ -93,3 +93,4 @@ app.get("*",(req,res) => {
 
 app.listen(process.env.PORT, () => {
 	console.log("server has started, listening on port "+process.env.PORT);
+});
