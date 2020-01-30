@@ -1,4 +1,35 @@
 <%- include("../partials/header.ejs") %>
-
+<div class="container">
+    <div id="allnotifications">
+        <% if (!notifications && !notifications.length > 0) { %>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h1>You do not have any notifications</h1>
+                    </div>
+                </div>
+            </div>
+        <% } else { notifications.forEach(notification => { %>
+            <div class="notification mb-2">
+                <a href="/notifications/<%= notification.id %>">
+                    <div class="card">
+                        <div class="row">
+                                <img src="<%= notification.campgroundId.image.url %>" class="card-img col-4 col-md-3 col-lg-2 notification-thumbnail" alt="<%= notification.campgroundId.name %>">
+                            <div class="col-8 col-md-9 col-lg-10">
+                                <div class="card-body">
+                                    <span class="card-title"><%= notification.username %> posted <%= notification.campgroundId.name %>!</span>
+                                    <span class="card-text"><small class="text-muted"> - <%= moment(notification.when).fromNow() %></small></span>
+                                    <form action="/notifications/<%= notification.id %>?_method=PUT" method="POST" class="form-inline pull-right">
+                                        <button>Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        <% });} %>
+    </div>
+</div>
 	
 <%- include("../partials/footer.ejs") %>

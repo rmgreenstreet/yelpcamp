@@ -139,10 +139,14 @@ router.get('/notifications', isLoggedIn, async function (req,res) {
 	try {
 		let user = await User.findById(req.user.id).populate({
 			path: 'notifications',
-			options: {sort:'-_id'}
+			options: {sort:'-_id'},
+			populate: {
+				path:'campgroundId',
+				model:'Campground'
+			}
 		}).exec();
-		let allNotifications = user.notifications;
-		res.render('notifications/index', {allNotifications});
+		let notifications = user.notifications;
+		res.render('notifications/index', {notifications});
 	}
 	catch (err) {
 		req.flash('error',err.message);
@@ -158,6 +162,20 @@ router.get('/notifications/:notification_id', isLoggedIn, async function (req,re
 		notification.isRead = true;
 		await notification.save();
 		res.redirect(`/campgrounds/${notification.campgroundId}`);
+	}
+	catch (err) {
+		req.flash('error',err.message);
+		res.redirect('back');
+	}
+});
+
+//delete notifications
+router.put('/notifications/:notification_id', isLoggedIn, async function (req,res) {
+	try {
+		let user = await User.findById(req.user.id);
+		user.notifications.splice(user.notifications.indexOf(req.params.notification_id));
+		await user.save();
+		res.redirect(`/notifications`);
 	}
 	catch (err) {
 		req.flash('error',err.message);
